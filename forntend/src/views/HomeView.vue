@@ -1,11 +1,18 @@
 <script setup>
-import { ref, onBeforeMount, computed } from "vue";
+import { ref, onBeforeMount, computed} from "vue";
+import {useRouter} from 'vue-router'
 import SidebarComponent from "@/components/SidebarComponent.vue";
 import AddTask from "@/components/AddTask.vue";
 import { FaSearch } from "vue-icons-plus/fa";
 
 const tasks = ref([]);
 const loading = ref(false);
+const router = useRouter()
+const desc = ref('')
+const endDate = ref('')
+const identity = ref('')
+const update = ref(false)
+const addTask = ref(false);
 
 onBeforeMount(() => {
   const getTasks = async () => {
@@ -18,6 +25,26 @@ onBeforeMount(() => {
   };
   getTasks();
 });
+
+const changeTask = () => {
+  addTask.value = !addTask.value;
+};
+
+
+const updateTodo = (description, date, iden) => {
+    desc.value = description;
+    endDate.value = date
+    identity.value = iden
+    update.value = true
+    changeTask()
+}
+
+
+const logout = () => {
+    localStorage.removeItem("token")
+    window.location.reload()
+    router.push('/login')
+}
 
 const inProgress = computed(() => {
   if (!loading.value) {
@@ -46,14 +73,9 @@ const delayed = computed(() => {
   );
 });
 
-const addTask = ref(false);
-const changeTask = () => {
-  addTask.value = !addTask.value;
-};
-
-const updateComplete = async (e) => {
-  console.log(e.target.parentElement.parentElement.parentElement);
-  const response = await fetch("http://localhost:3000/todo", {
+const updateComplete = async (id) => {
+  console.log(id);
+  const response = await fetch(`http://localhost:3000/todo/${id}`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -62,7 +84,7 @@ const updateComplete = async (e) => {
       completed: true,
     }),
   });
-    const data = await response.json();
+  window.location.reload()
 };
 </script>
 
@@ -81,7 +103,7 @@ const updateComplete = async (e) => {
             placeholder="Search"
           />
         </div>
-        <button class="px-3 h-[40px] text-white bg-red-500 rounded-md">
+        <button class="px-3 h-[40px] text-white bg-red-500 rounded-md" @click.prevent = "logout">
           Sign Out
         </button>
       </nav>
@@ -106,7 +128,7 @@ const updateComplete = async (e) => {
             >
               IN PROGRESS
             </div>
-            <div class="w-full" v-for="item in inProgress" :key="item.id">
+            <div class="w-full" v-for="item in inProgress" :key="item._id">
               <div
                 class="bg-white w-[400px] p-5 my-5 flex flex-col items-center border-2 border-solid border-gray-400 rounded-xl border-l-purple-600 border-l-4"
               >
@@ -115,10 +137,10 @@ const updateComplete = async (e) => {
                   <p class="text-gray-400 text-sm">{{ item.endDate }}</p>
                 </div>
                 <div class="flex justify-between items-center w-full mt-5">
-                  <button class="bg-blue-200 p-2 rounded-md text-gray-500" @click="(e) => updateComplete(e)">
+                  <button class="bg-blue-200 p-2 rounded-md text-gray-500" @click="updateTodo(item.desc, item.endDate, item._id)">
                     Update
                   </button>
-                  <button class="bg-purple-200 p-2 rounded-md text-gray-500">
+                  <button class="bg-purple-200 p-2 rounded-md text-gray-500" @click="updateComplete(item._id)">
                     Complete
                   </button>
                 </div>
@@ -163,5 +185,5 @@ const updateComplete = async (e) => {
       </main>
     </div>
   </main>
-  <AddTask v-else :change-task="changeTask" />
+  <AddTask v-else :change-task="changeTask" :description="desc" :end-date="endDate" :update="update" :identity="identity"/>
 </template>

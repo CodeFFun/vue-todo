@@ -1,9 +1,11 @@
 <script setup>
 import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import {FcGoogle} from 'vue-icons-plus/fc'
 import {AiFillApple} from 'vue-icons-plus/ai'
 
 
+const router = useRouter()
 const email = ref('')
 const password = ref('')
 
@@ -24,14 +26,15 @@ const onSubmit = async () => {
     const result = await res.json()
     localStorage.setItem('token', result[0]._id)
     email.value = ''
-    password.value = ''
+    password.value = '' 
+    window.location.reload()
 }
 </script>
 
 <template>
   <main class="w-screen h-screen bg-blue-400 flex justify-center items-center">
         <div class="bg-white  rounded-xl p-10">
-            <p class="w-full text-right text-gray-400">Not a Member?<span class="text-black">Register</span></p>
+            <p class="w-full text-right text-gray-400">Not a Member?<span class="text-black" @click="() => router.push('/register')">Register</span></p>
             <div class="mt-20">
                 <h1 class="font-bold text-4xl">Sign In</h1>
                 <p class="my-5 font-semibold text-sm">Sign in with open account</p>

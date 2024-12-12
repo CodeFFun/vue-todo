@@ -1,9 +1,10 @@
 <script setup>
 import {ref} from 'vue'
+import {useRouter} from 'vue-router'
 import {FcGoogle} from 'vue-icons-plus/fc'
 import {AiFillApple} from 'vue-icons-plus/ai'
 
-
+const router = useRouter()
 const email = ref('')
 const name = ref('')
 const password = ref('')
@@ -28,13 +29,14 @@ const onSubmit = async () => {
     email.value = ''
     password.value = ''
     name.value = ''
+    router.push('/')
 }
 </script>
 
 <template>
   <main class="w-screen h-screen bg-blue-400 flex justify-center items-center">
         <div class="bg-white  rounded-xl p-10">
-            <p class="w-full text-right text-gray-400">Already Member?<span class="text-black">Sign In</span></p>
+            <p class="w-full text-right text-gray-400">Already Member?<span class="text-black" @click="() => router.push('/login')">Sign In</span></p>
             <div class="mt-20">
                 <h1 class="font-bold text-4xl">Register</h1>
                 <p class="my-5 font-semibold text-sm">Register with open account</p>
